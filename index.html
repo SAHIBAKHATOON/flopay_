@@ -307,12 +307,12 @@
                             <span id="rupee_balance"></span>
                         </div>
                         <div class="flex align-center space-between balance-card">
-                            <span>FLOs</span>
+                            <span>FLO</span>
                             <span id="flo_balance"></span>
                         </div>
 
                         <div class="flex align-center space-between balance-card">
-                            <span>USDT Ikp</span>
+                            <span>BSC USDT</span>
                             <span id="usdt_balance"></span>
 
 
@@ -334,7 +334,7 @@
                 </div>
                 <sm-chips id="wallet_section__asset_selector" class="user-element">
                     <sm-chip value="rupee" selected>Rupee</sm-chip>
-                    <sm-chip value="usdt">USDT</sm-chip>
+                    <sm-chip value="usdt">BSC USDT</sm-chip>
                     <sm-chip value="btc">BTC</sm-chip>
 
                 </sm-chips>
@@ -1083,7 +1083,7 @@
         </header>
         <section class="grid gap-2">
             <sm-form>
-                <sm-input id="token_transfer__receiver" placeholder="FLO address" error-text="Invalid FLO address"
+                <sm-input id="token_transfer__receiver" placeholder="BSC/FLO address"  
                     data-flo-id animate required autofocus>
                     <button slot="right" class="icon-only" onclick="openPopup('saved_ids_popup')"
                         title="Select from saved IDs">
@@ -1130,8 +1130,8 @@
                         </g>
                     </svg>
                 </sm-input> -->
-                <sm-input id="token_transfer__remark" pattern="[A-Za-z]" error-text="Only text allowed"
-                    placeholder="Add a message" animate></sm-input>
+                <!-- <sm-input id="token_transfer__remark" pattern="[A-Za-z]" error-text="Only text allowed"
+                    placeholder="Add a message" animate></sm-input> -->
                     <div>
                         <h3>Fees</h3>
                         <span>Approximate fee: <b>0.000029983 BNB</b></span>
@@ -1140,8 +1140,9 @@
                 <div class="multi-state-button">
                     <button id="token_transfer__button" class="button button--primary cta" onclick="sendTx()"
                         type="submit">Send</button>
-
+                        
                 </div>
+                <!-- <svg viewBox="0 0 64 64" class="loader"><circle cx="32" cy="32" r="32"></circle></svg> -->
             </sm-form>
         </section>
     </sm-popup>
@@ -3737,6 +3738,15 @@
             if (currency === 'btc') {
                 formattingOptions.maximumFractionDigits = 8;
             }
+            if (currency == 'USDT') {
+               
+                 
+               
+                return currency + " " + amount;
+               formattingOptions.maximumFractionDigits = 8;
+               return amount.toLocaleString(currency, formattingOptions)
+           }
+             
             return amount.toLocaleString(currency === 'inr' ? `en-IN` : 'en-US', formattingOptions)
         }
         function copyToClipboard(textToCopy) {
@@ -4397,7 +4407,7 @@
                 const formattedUSDTBal = typeof BcsBalance === 'number' ? BcsBalance : parseFloat(BcsBalance) || 0;
 
                 getRef('flo_balance').textContent = formatAmount(formattedFloBal, 'flo');
-                getRef('usdt_balance').textContent = formatAmount(formattedUSDTBal, 'flo');
+                getRef('usdt_balance').textContent = formatAmount(formattedUSDTBal, 'USDT');
 
                 // Check if the FLO balance is below the threshold
                 if (formattedFloBal < floGlobals.settings.user_flo_threshold) {
@@ -5468,6 +5478,8 @@ async function sendTx() {
         });
 
         if (!confirmation) return;
+        
+        buttonLoader("token_transfer__button", true);
 
         const tx = await bscOperator.sendToken({
             privateKey,
@@ -5478,10 +5490,10 @@ async function sendTx() {
 
         console.log("Transaction object:", tx);
         console.log("Transaction Hash:", tx.hash);
-
+         
         // Show pending transaction status
         showTransactionResult("pending", { txHash: tx.hash });
-
+        
         // Add confirmation popup
         // document.querySelector('#transaction-status').innerHTML = `
         //     <div class="grid gap-0-5 justify-center text-center">
